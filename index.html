@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Turing Machine</title>
+</head>
+<body>
+<p id="tape"></p>
+
+<script>
+    let currentPosition = 0;
+    let currentState = 0;
+
+    let alphabet = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ',', ' '];
+
+    let moves = {
+        L: -1,
+        R: 1,
+        N: 0
+    };
+
+    let states = [
+        [
+            [0, moves.R, 0],
+            [1, moves.R, 0],
+            [2, moves.R, 0],
+            [3, moves.R, 0],
+            [4, moves.R, 0],
+            [5, moves.R, 0],
+            [6, moves.R, 0],
+            [7, moves.R, 0],
+            [8, moves.R, 0],
+            [9, moves.R, 0],
+            [',', moves.N, -1],
+            [',', moves.R, 1],
+        ],
+        [
+            [0, moves.R, 0],
+            [1, moves.R, 0],
+            [2, moves.R, 0],
+            [3, moves.R, 0],
+            [4, moves.R, 0],
+            [5, moves.R, 0],
+            [6, moves.R, 0],
+            [7, moves.R, 0],
+            [8, moves.R, 0],
+            [9, moves.R, 0],
+            [',', moves.R, 0],
+            [' ', moves.L, 0],
+        ]
+    ];
+
+    let tape = [1, 3, 4, 5, 2, ' ', 3, 5, ' ', 7, 1, 2];
+    let isTerminated = false;
+
+    let drawTape = () => {
+        let tapeElement = document.getElementById('tape');
+        tapeElement.innerHTML = '';
+
+        tape.map((e, i) => {
+            let borderColor = currentPosition === i ? 'red' : 'black';
+            let borderWidth = currentPosition === i ? 4 : 1;
+            tapeElement.innerHTML += '<span style="border: ' + borderWidth + 'px solid ' + borderColor + '; padding: 5px 10px">' + e + '</span>'
+        });
+    };
+
+    let iterations = 0;
+    setInterval(() => {
+        if (!isTerminated) {
+            if (currentPosition < 0) {
+                tape.unshift(' ');
+                currentPosition = 0;
+            }
+
+            if (tape[currentPosition] === undefined) {
+                tape[currentPosition] = ' ';
+            }
+            drawTape();
+
+            let currentElement = tape[currentPosition];
+
+            let state = states[currentState]
+
+            let letterIndex = alphabet.findIndex(l => l === currentElement);
+
+            if (!letterIndex)
+                throw 'no letter!';
+
+            let action = state[letterIndex];
+
+            if (!action)
+                throw 'no action!';
+
+            tape[currentPosition] = action[0];
+            currentPosition += action[1];
+            currentState = action[2];
+
+            if (action[2] === -1) {
+                isTerminated = true;
+            }
+
+            iterations++;
+            if (iterations > 35) {
+                isTerminated = true;
+                throw 'too much iterations!';
+            }
+        }
+    }, 300);
+</script>
+</body>
+</html>
